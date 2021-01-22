@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import argparse
 import email
 import getpass
 import imaplib
@@ -25,17 +26,35 @@ def get_message_contents(message):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        prog="respond_to_email",
+        description="Send an email from a given address to the same address and \
+            await a response.",
+    )
+    parser.add_argument(
+        "--subject",
+        "-s",
+        type=str,
+        help="the subject line of the email",
+        default="Subject",
+    )
+    parser.add_argument(
+        "--message",
+        "-m",
+        type=str,
+        help="the contents within the email",
+        default="This message awaits a reply.",
+    )
+    args = parser.parse_args()
+
     user = input("Email: ")
     pswd = getpass.getpass()
     print()
 
     # Create a message.
     msg = email.message.EmailMessage()
-    sbj = f"Hello World ({generate_random_string()})"
-    msg.set_content(
-        "Hello,\n\n"
-        + "This message was sent by a force greater than magic: engineering."
-    )
+    sbj = f"{args.subject} ({generate_random_string()})"
+    msg.set_content(args.message)
     msg["subject"] = sbj
     msg["From"] = user
     msg["To"] = user
