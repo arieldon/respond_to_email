@@ -15,14 +15,15 @@ def generate_random_string():
 
 
 def get_message_contents(message):
-    if message.is_multipart():
-        mail_content = ""
-        for part in message.get_payload():
-            if part.get_content_type() == "text/plain":
-                mail_content += part.get_payload()
-    else:
-        mail_content = message.get_payload()
-    return mail_content
+    if not message.is_multipart():
+        return message.get_payload()
+    return "".join(
+        [
+            part.get_payload()
+            for part in message.get_payload()
+            if part.get_content_type() == "text/plain"
+        ]
+    )
 
 
 if __name__ == "__main__":
