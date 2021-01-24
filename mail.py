@@ -6,8 +6,24 @@ import getpass
 import imaplib
 import smtplib
 import string
+import sys
 import random
 import time
+
+
+def retry_auth(f):
+    def aid(user, attempts = 0):
+        if attempts > 2:
+            sys.stderr.write("Failure after three tries.\n")
+            sys.exit(1)
+        try:
+            global pswd
+            pswd = getpass.getpass()
+            f(user, pswd)
+        except Exception:
+            print("Incorrect, try again.")
+            aid(user, attempts + 1)
+    return aid
 
 
 def generate_random_string():
@@ -49,8 +65,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     user = input("Email: ")
-    pswd = getpass.getpass()
-    print()
+    pswd = ""
 
     # Create a message.
     msg = email.message.EmailMessage()
@@ -62,7 +77,8 @@ if __name__ == "__main__":
 
     # Send message.
     with smtplib.SMTP_SSL(host="smtp.gmail.com", port=465) as smtp:
-        smtp.login(user, pswd)
+        login = retry_auth(smtp.login)
+        login(user)
         smtp.send_message(msg)
 
     # Parse inbox and return any messages that match the subject line above.
