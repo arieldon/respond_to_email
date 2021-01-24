@@ -30,6 +30,15 @@ def generate_random_string():
     return "".join(random.sample(string.ascii_letters + string.digits, 8))
 
 
+def create_message(user, sbj, content):
+    msg = email.message.EmailMessage()
+    msg.set_content(content)
+    msg["subject"] = sbj;
+    msg["From"] = user
+    msg["To"] = user
+    return msg
+
+
 def get_message_contents(message):
     if not message.is_multipart():
         return message.get_payload()
@@ -67,13 +76,8 @@ if __name__ == "__main__":
     user = input("Email: ")
     pswd = ""
 
-    # Create a message.
-    msg = email.message.EmailMessage()
     sbj = f"{args.subject} ({generate_random_string()})"
-    msg.set_content(args.message)
-    msg["subject"] = sbj
-    msg["From"] = user
-    msg["To"] = user
+    msg = create_message(user, sbj, args.message)
 
     # Send message.
     with smtplib.SMTP_SSL(host="smtp.gmail.com", port=465) as smtp:
