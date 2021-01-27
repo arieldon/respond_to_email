@@ -11,19 +11,26 @@ import random
 import time
 
 
-def retry_auth(f):
-    def aid(user, attempts = 0):
-        if attempts > 2:
-            sys.stderr.write("Failure after three tries.\n")
-            sys.exit(1)
-        try:
-            global pswd
-            pswd = getpass.getpass()
-            f(user, pswd)
-        except Exception:
-            print("Incorrect, try again.")
-            aid(user, attempts + 1)
-    return aid
+def retry_auth(attempts = 3):
+    def decorate_retry(f):
+        def retry_function(user):
+            pswd = ""
+            remaining_attempts = attempts
+            while remaining_attempts > 0:
+                pswd = getpass.getpass()
+                try:
+                    f(user, pswd)
+                except Exception as e:
+                    remaining_attempts -= 1
+                    if remaining_attempts == 0:
+                        print(f"Failure after {attempts} attempts.")
+                        sys.exit(1)
+                    else:
+                        print("Incorrect password, try again.")
+                else:
+                    return pswd
+        return retry_function
+    return decorate_retry
 
 
 def generate_random_string():
@@ -80,8 +87,8 @@ if __name__ == "__main__":
     msg = create_message(user, sbj, args.message)
 
     with smtplib.SMTP_SSL(host="smtp.gmail.com", port=465) as smtp:
-        login = retry_auth(smtp.login)
-        login(user)
+        login = retry_auth(attempts=3)(smtp.login)
+        pswd = login(user)
         smtp.send_message(msg)
 
     with imaplib.IMAP4_SSL(host="imap.gmail.com") as imap:
