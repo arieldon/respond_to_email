@@ -11,7 +11,7 @@ import random
 import time
 
 
-def retry_auth(attempts = 3):
+def retry_auth(attempts=3):
     def decorate_retry(f):
         def retry_function(user):
             pswd = ""
@@ -29,7 +29,9 @@ def retry_auth(attempts = 3):
                         print("Incorrect password, try again.")
                 else:
                     return pswd
+
         return retry_function
+
     return decorate_retry
 
 
@@ -40,7 +42,7 @@ def generate_random_string():
 def create_message(user, sbj, content):
     msg = email.message.EmailMessage()
     msg.set_content(content)
-    msg["subject"] = sbj;
+    msg["subject"] = sbj
     msg["From"] = user
     msg["To"] = user
     return msg
