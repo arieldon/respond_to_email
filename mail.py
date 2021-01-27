@@ -62,7 +62,7 @@ def get_message_contents(message):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        prog="respond_to_email",
+        prog="await_email_reply",
         description="Send an email from a given address to the same address and \
             await a response.",
     )
