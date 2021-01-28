@@ -80,6 +80,13 @@ if __name__ == "__main__":
         help="the contents within the email",
         default="This message awaits a reply.",
     )
+    parser.add_argument(
+        "--delay",
+        "-d",
+        type=int,
+        help="delay between inbox queries when searching for message",
+        default=10,
+    )
     args = parser.parse_args()
 
     user = input("Email: ")
@@ -110,6 +117,6 @@ if __name__ == "__main__":
                 break
             else:
                 print("No reply.")
-                time.sleep(10)
+                time.sleep(args.delay)
                 imap.noop()
         imap.close()
