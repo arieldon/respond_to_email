@@ -60,14 +60,12 @@ def get_message_contents(message):
     )
 
 
-def display_reply(imap_instance, reply):
+def parse_reply(imap_instance, reply):
     for datum in reply.split():
         _, response_parts = imap_instance.fetch(datum, "(RFC822)")
         for part in response_parts:
             if isinstance(part, tuple):
-                message = email.message_from_bytes(part[1])
-                print(f"{message['subject']} [{message['from']}]")
-                print(get_message_contents(message))
+                return get_message_contents(email.message_from_bytes(part[1]))
 
 
 if __name__ == "__main__":
@@ -117,7 +115,7 @@ if __name__ == "__main__":
         while True:
             _, search_result = imap.search(None, f'(SUBJECT "Re: {sbj}")')
             if search_result[0]:
-                display_reply(imap, reply=search_result[0])
+                print(parse_reply(imap, reply=search_result[0]))
                 break
             else:
                 print("No reply.")
