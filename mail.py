@@ -12,6 +12,10 @@ import time
 
 
 def retry_auth(attempts=3):
+    """
+    Grant the user a certain number of attempts to authenticate before exiting
+    with a status of 1. Upon success, return the password and proceed.
+    """
     def decorate_retry(f):
         def retry_function(user):
             pswd = ""
@@ -29,9 +33,7 @@ def retry_auth(attempts=3):
                         print("Incorrect password, try again.")
                 else:
                     return pswd
-
         return retry_function
-
     return decorate_retry
 
 
@@ -104,8 +106,7 @@ if __name__ == "__main__":
     msg = create_message(user, sbj, args.message)
 
     with smtplib.SMTP_SSL(host="smtp.gmail.com", port=465) as smtp:
-        login = retry_auth(attempts=3)(smtp.login)
-        pswd = login(user)
+        pswd = retry_auth()(smtp.login)(user)
         smtp.send_message(msg)
 
     with imaplib.IMAP4_SSL(host="imap.gmail.com") as imap:
